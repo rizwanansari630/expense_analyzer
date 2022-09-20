@@ -1,16 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_complete_guide/widgets/chart.dart';
 import 'package:flutter_complete_guide/widgets/new_transaction.dart';
+import 'package:intl/intl.dart';
 
 import 'models/transaction_model.dart';
 import 'widgets/transaction_list.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MaterialApp(
     title: 'Personal Expenses',
     theme: ThemeData(
       primarySwatch: Colors.pink,
-      accentColor: Colors.green,
+      accentColor: Colors.white,
       fontFamily: 'Quicksand',
+      buttonTheme: ButtonThemeData(
+        buttonColor: Colors.blueAccent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        textTheme: ButtonTextTheme.accent,
+      ),
     ),
     home: Transactions(),
   ));
@@ -23,16 +34,35 @@ class Transactions extends StatefulWidget {
 
 class _TransactionsState extends State<Transactions> {
   final List<Transaction> _transactions = [
-  //   Transaction(id: 't1', amount: 2000, title: 'Shoes', date: DateTime.now()),
-  //   Transaction(id: 't2', amount: 100, title: 'Shirt', date: DateTime.now()),
+    Transaction(id: 't1', amount: 10, title: 'Shoes', date: DateTime.now()),
+    Transaction(id: 't1', amount: 20, title: 'Shoes', date: DateTime.now()),
+    Transaction(
+        id: 't1',
+        amount: 40,
+        title: 'Shoes',
+        date: new DateFormat("yyyy-MM-dd hh:mm:ss")
+            .parse('2022-06-24 15:52:32.733690')),
+    Transaction(
+        id: 't1',
+        amount: 60,
+        title: 'Shoes',
+        date: new DateFormat("yyyy-MM-dd hh:mm:ss")
+            .parse('2022-06-26 15:52:32.733690')),
+    Transaction(
+        id: 't1',
+        amount: 15,
+        title: 'Shoes',
+        date: new DateFormat("yyyy-MM-dd hh:mm:ss")
+            .parse('2022-06-23 15:52:32.733690')),
+    Transaction(id: 't2', amount: 50, title: 'Shirt', date: DateTime.now()),
   ];
 
-  void _addTrxToList(String title, double amount) {
+  void _addTrxToList(String title, double amount, DateTime date) {
     var newTrx = Transaction(
         id: DateTime.now().toString(),
         amount: amount,
         title: title,
-        date: DateTime.now());
+        date: date);
     setState(() {
       _transactions.add(newTrx);
     });
@@ -40,6 +70,9 @@ class _TransactionsState extends State<Transactions> {
 
   void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        backgroundColor: Colors.blueGrey.shade50,
         context: ctx,
         builder: (bCtx) {
           return GestureDetector(
@@ -52,28 +85,39 @@ class _TransactionsState extends State<Transactions> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    print(isLandscape.toString());
+    final appBar = AppBar(
+      backgroundColor: Theme.of(context).primaryColor,
+      title: const Text('Transactions'),
+      actions: [
+        IconButton(
+            onPressed: () => _startAddNewTransaction(context),
+            icon: Icon(Icons.add))
+      ],
+    );
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).primaryColor,
-          title: const Text('Transactions'),
-          actions: [
-            IconButton(
-                onPressed: () => _startAddNewTransaction(context),
-                icon: Icon(Icons.add))
-          ],
-        ),
+        appBar: appBar,
         body: SingleChildScrollView(
           child: Column(
             children: [
               Container(
-                margin: EdgeInsets.all(2),
-                padding: EdgeInsets.all(2),
-                child: Card(
-                  child: Text('Card1'),
-                ),
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.2,
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: ExpenseChart(_transactions),
               ),
-              TransactionList(transactionList: _transactions),
+              Container(
+                height: (MediaQuery.of(context).size.height -
+                        appBar.preferredSize.height -
+                        MediaQuery.of(context).padding.top) *
+                    0.8,
+                child: TransactionList(transactionList: _transactions),
+              )
             ],
           ),
         ),

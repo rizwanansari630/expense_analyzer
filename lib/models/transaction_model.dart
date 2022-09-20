@@ -1,10 +1,14 @@
 import 'package:flutter/cupertino.dart';
 
-class Transaction{
+class Transaction {
   final String id;
   final String title;
   final double amount;
   final DateTime date;
 
-  Transaction({@required this.id,@required this.amount,@required this.title,@required this.date});
+  Transaction(
+      {@required this.id,
+      @required this.amount,
+      @required this.title,
+      @required this.date});
 }
